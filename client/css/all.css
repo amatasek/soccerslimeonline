@@ -1,0 +1,94 @@
+*{
+   padding : 0;
+   margin : 0;
+   border : 0;
+}
+body{
+
+   background-size : 100% auto;
+   
+}
+
+#loginDiv{
+  background-color : rgba(102, 209, 166, 0.5);
+  width: 420px;
+  height: 300px;
+}
+#profileDiv{
+  background-color : rgba(102, 209, 166, 0.5);
+  width: 420px;
+  height: 300px;
+}
+.blended_grid{
+   display : block;
+   width : 1000px;
+   overflow : auto;
+   margin : 30px auto 0 auto;
+}
+.pageHeader{
+   background-color : rgba(102, 209, 166, 0.5);
+   float : left;
+   clear : none;
+   height : 50px;
+   width : 100%;
+}
+.gameDiv{
+
+   float : left;
+   clear : none;
+   height : 400px;
+   width : 800px;
+}
+.notificationDiv{
+  background-color : rgba(102, 209, 166, 0.5);
+   float : right;
+   clear : none;
+   height : 650px;
+   width : 200px;
+}
+.chatDiv{
+  background-color : rgba(102, 209, 166, 0.5);
+   float : left;
+   clear : none;
+   height : 250px;
+   width : 800px;
+}
+
+.headers{
+  background-color : rgba(0, 0, 0, 0.5);
+  height:20px;
+  text-align: center;
+}
+.buttons{
+  margin-top:10px;
+  margin-right:10px;
+  width:180px;
+  height:30px;
+  float:right;
+}	
+  h2 {
+  color: white;
+  font-size: 18px;
+}
+  
+  
+  #messages{
+     list-style-type: none;
+     padding: 0;
+     height:175px;
+     overflow: auto;
+  }
+  
+
+
+     #messages li { padding: 5px 10px; }
+     #messages li:nth-child(odd) { background: #eee; }
+
+
+  ul
+    {
+      list-style-type: none;
+     margin-top: 5px;
+     margin-left: 5px;
+     margin-right: 5px;
+     }

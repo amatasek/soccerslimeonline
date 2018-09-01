@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<title>SoccerSlimeOnline</title>
+
+	<link rel="stylesheet" href="css/all.css">
+
+	<script src="js/MainController.js"></script>
+
+	<script defer src="js/socket.io.js"></script>
+   <script defer src="js/fontawesome-all.min.js"></script>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script> 
+</head>
+
+<body>
+
+	<div id="app-mask"></div>
+
+	<div id="app-main">
+
+		<div  id="loginDiv">
+			<div  class="headers">
+				<h2>Login</h2>
+			</div>
+			<div style="float:left; margin-top:20px; margin-left:10px;">
+				<div style="width:100px; float:left;">
+					<h2>Username: </h2> 
+					<h2>Password: </h2> 
+				</div>
+				<div style="width:100px; float:left; margin-top:4px;">
+					<input id="user" type="text" name="username" size="12">
+					<input id="pwd" type="password" name="password"  size="12">
+				</div>
+			</div>
+			<input class="buttons" type="button" id="b_login" value="Login" style="margin-top:27px;">
+			<div id="mainContent" style="width:100%; height:215px; display : block;">
+				<ul id="errorMessages"></ul>
+			</div>
+			<div style="float:left; margin-left:10px;">
+				<input class="buttons" type="button" id="b_newUser" value="New User" >
+			</div>
+      </div>
+      
+		<div  id="profileDiv" style="display:none">
+			<div  class="headers">
+				<h2>Profile</h2>
+			</div>
+			<div style="float:left; margin-top:20px; margin-left:10px;">
+				<div style="width:100%; float:left;">
+					<input type="button" id="b_profile2main" value="Back" style="color:red; width:50px; height:30px;">
+				</div>
+				<div style="width:70px; float:left; margin-top:20px; ">
+					<h2>Name: </h2> 
+				</div>
+				<div style="width:100px; float:left; margin-top:22px;">
+					<label id="lblName"><label>
+				</div>
+			</div>
+			
+			<div id="mainContent" style="width:100%; height:215px; display : block;">
+				
+			</div>
+			<div style="float:left; margin-left:10px;">
+				<input class="buttons" type="button" id="b_newName" value="New Name" style="float:left;">
+				<input class="buttons" type="button" id="b_newPassword" value="Change Secret Word">
+			</div>
+      </div>
+      
+		<div id="mainDiv" class="blended_grid" style="display:none">
+			<div class="pageHeader">
+				<input class="buttons" type="button" id="b_logout" value="Logout">
+				<input class="buttons" type="button" id="b_controlRight" value="Control Blue Slime" style="color:blue; margin-right:110px;">
+				<input class="buttons" type="button" id="b_rightControlled" value="" style="display:none; color:blue; margin-right:110px;">
+				<input class="buttons" type="button" id="b_profile" value="Profile" style="float:left; margin-left:10px;">
+				<input class="buttons" type="button" id="b_controlLeft" value="Control Red Slime" style="color:red; float:left; margin-left:110px;">
+				<input class="buttons" type="button" id="b_leftControlled" value="" style="display:none; color:red; float:left; margin-left:110px;">
+			</div>
+			<div class="gameDiv">
+				<canvas id="myCanvas" width="800" height="400" style="border:1px solid #000000;"></canvas>
+			</div>
+			<div class="notificationDiv">
+				<div class="headers" >
+					<h2>Notifications </h2>
+				</div>
+				<ul id="notifications"></ul>
+			</div>
+			<div class="chatDiv">
+				<div  class="headers">
+					<h2>Chat</h2>
+				</div>
+				<ul id="messages"></ul>
+				<div style="height:50px; width:100%;">
+					<input id="m" autocomplete="off" style="margin-top:10px; margin-left:10px; height:30px; width:590px;"/>
+					<input class="buttons" type="button" id="b_send" value="Send"/>
+				</div>
+			</div>
+      </div>
+       
+	</div> <!-- App Main -->
+
+	<div id="modal-summary" class="modal">
+		<div class="modal-content">
+			<i class="close fas fa-times"></i>
+			<h3 id="h3-results"></h3>
+			<p id="p-results"></p>
+		</div>	
+	</div>
+
+</body>
+</html>
