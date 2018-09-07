@@ -33,8 +33,6 @@ http.listen( SETTINGS.port, function(){
 	console.log( 'Navigate your browser to localhost:' + SETTINGS.port );
 });
 
-
-
 io.on( 'connection', function( client ){
    console.log(`Client with id: [${client.id}] connected.`);
    

@@ -6,17 +6,18 @@ module.exports = function(io, client){
          return;
       }
       
-      if (input.player === 1 && input.user !== GAME.leftSlime.user){
+      if (input.player === 0 && input.user !== GAME.leftSlime.user){
          return;
       }
 
-      if (input.player === 2 && input.user !== GAME.rightSlime.user){
+      if (input.player === 1 && input.user !== GAME.rightSlime.user){
          return;
       }
       
       const movement = {
          player: input.player,
-         move: input.direction
+         move: input.direction,
+         position: input.position
       }; 
 
       io.emit('movement', movement); 

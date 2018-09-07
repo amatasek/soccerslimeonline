@@ -13,8 +13,8 @@ module.exports = function(io, client){
    
       switch (info.player) {
          
-         case 1:
-            if (info.player == 1 && GAME.leftSlime.user){
+         case 0:
+            if (GAME.leftSlime.user){
                console.log(`Request from [${info.user}] to control player [${info.player}] denied.`);
                return;
             } else {
@@ -22,8 +22,8 @@ module.exports = function(io, client){
             }
             break;
    
-         case 2:
-            if (info.player == 1 && GAME.rightSlime.user){
+         case 1:
+            if (GAME.rightSlime.user){
                console.log(`Request from [${info.user}] to control player [${info.player}] denied.`);
                return;
             } else {
