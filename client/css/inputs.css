@@ -1,0 +1,25 @@
+.input {
+   bottom: 2.5%;
+   width: 7.5%;
+   height: 15%;
+}
+
+.input:hover {
+   background-color: rgba(0, 0, 0, 0.5);
+   cursor: pointer;
+}
+
+#app-right {
+   z-index: 999;
+   right: 2.5%;
+}
+
+#app-up {
+   z-index: 999;
+   right: 12.5%;
+}
+
+#app-left {
+   z-index: 999;
+   right: 22.5%;
+}

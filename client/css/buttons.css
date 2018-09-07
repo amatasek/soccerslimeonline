@@ -1,0 +1,18 @@
+.control {
+   bottom: 12px;   
+}
+
+.control:hover {
+   cursor: pointer;
+   background-color: rgba(0, 0, 0, 0.5);  
+}
+
+#app-logout {
+   z-index: 999;
+   left: 48px;
+}
+
+#app-settings {
+   z-index: 999;
+   left: 12px;
+}

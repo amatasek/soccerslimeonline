@@ -1,0 +1,42 @@
+body,
+html {
+	height: 100%;
+}
+
+body {
+	font-family: 'Open Sans', sans-serif;
+	overflow: auto;
+}
+
+#app-main {
+   position: relative;
+   width: 900px;
+   height: 400px;
+   max-width: 920px;
+   max-height: 420px;
+   z-index: 1;
+}
+
+#app-canvas {
+   position: absolute;
+   height : 400px;
+   width : 900px;
+   background-color: skyblue;
+   z-index: 2;
+}
+
+.app-request {
+   top: 25%;
+   height: 25%;
+   border: 2px solid pink;
+}
+
+#app-request-left {
+   left: 25%;
+   z-index: 999;
+}
+
+#app-request-right {
+   right: 25%;
+   z-index: 999;
+}

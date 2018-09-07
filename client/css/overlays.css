@@ -1,0 +1,26 @@
+.overlay {
+   position: absolute;
+   color: white;
+   background-color: rgba(0, 0, 0, 0.267);   
+   border-radius: 6px;
+   padding: 6px;
+   text-align: center;
+}
+
+#overlay-left {
+   top: 0;
+   left: 0;
+   border: 2px solid white;
+   z-index: 999;
+   margin: 12px;
+   min-width: 100px;
+}
+
+#overlay-right {
+   top: 0;
+   right: 0;
+   border: 2px solid white;
+   z-index: 999;
+   margin: 12px;
+   min-width: 100px;
+}

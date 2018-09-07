@@ -1,18 +1,22 @@
-window.requestAnimFrame = (function(callback) {
-   return window.requestAnimationFrame || window.webkitRequestAnimationFrame 
-                              || window.mozRequestAnimationFrame 
-                              || window.oRequestAnimationFrame 
-                              || window.msRequestAnimationFrame ||
-   function(callback) {
-     window.setTimeout(callback, 1000 / 60);
-   };
- })();
 
  window.onload = function(){
+   window.requestAnimFrame = function(){
+      return (
+          window.requestAnimationFrame       || 
+          window.webkitRequestAnimationFrame || 
+          window.mozRequestAnimationFrame    || 
+          window.oRequestAnimationFrame      || 
+          window.msRequestAnimationFrame     || 
+          function(callback){
+              window.setTimeout(callback, 1000 / 60);
+          }
+      );
+   }();
+
    /*
    ***************TOP LEVEL VARIABLES****************
    */
-   var canvas = document.getElementById('myCanvas');
+   var canvas = document.getElementById('app-canvas');
    var context = canvas.getContext('2d');
 
    var isControllingLeft = false;
@@ -25,54 +29,54 @@ window.requestAnimFrame = (function(callback) {
    };
 
    var ball = {
-      DEFAULTX: 400,
+      DEFAULTX: 450,
       DEFAULTY: 100,
       x: 0,
       y: 0,
       r: 15,
       vertS: 0,
-      horzS: 0
+      horzS: 0,
+      color: 'yellow'
    };
+
    ball.x = ball.DEFAULTX;
    ball.y = ball.DEFAULTY;
 
    var leftSlime = {
-      DEFAULTX: 240,
-      DEFAULTY: 325,
+      DEFAULTX: 300,
+      DEFAULTY: 300,
       x: 0,
       y: 0,
       r: 40,
       vertS: 0,
-      horzS: 0
+      horzS: 0,
+      color: 'white'
    };
+
    leftSlime.x = leftSlime.DEFAULTX;
    leftSlime.y = leftSlime.DEFAULTY;
 
-   var rightSlime = {
-      DEFAULTX: 560,
-      DEFAULTY: 325,
+   let rightSlime = {
+      DEFAULTX: 600,
+      DEFAULTY: 300,
       x: 0,
       y: 0,
       r: 40,
       vertS: 0,
-      horzS: 0
+      horzS: 0,
+      color: 'white'
    };
+
    rightSlime.x = rightSlime.DEFAULTX;
    rightSlime.y = rightSlime.DEFAULTY;
 
-   var sceneVars = {
-      fieldHeight: 75,
-      goalHeight: 80,
-      goalDepth: 40
+   let sceneVars = {
+      fieldHeight: 100,
+      goalHeight: 100,
+      goalDepth: 50
    };
 
-   /*
-   * define the runAnimation boolean as an obect
-   * so that it can be modified by reference
-   */
-   var runAnimation = {
-   value: false
-   };
+   var runAnimation = false;
 
    // WEB SOCKET
    var socket = io();
@@ -80,20 +84,10 @@ window.requestAnimFrame = (function(callback) {
    /*
    **************GAME ACTOR DEFINITIONS***************
    */
-   function drawScore(score, context){
-      context.font = "48px serif";
-      context.textAlign = "center";
-      context.strokeText(score.left + " | " + score.right, (canvas.width / 2), 45);
-      
-      context.font = "48px serif";
-      context.textAlign = "center";
-      context.strokeText(score.winner, (canvas.width / 2), 100);
-   }
-   
    function drawBall(ball, context) {
          context.beginPath();
          context.arc(ball.x, ball.y, ball.r, 0, 2 * Math.PI, false);
-         context.fillStyle = 'yellow';
+         context.fillStyle = ball.color;
          context.fill();
          context.lineWidth = 1;
          context.strokeStyle = '#003300';
@@ -105,7 +99,7 @@ window.requestAnimFrame = (function(callback) {
       context.arc(leftSlime.x, leftSlime.y, leftSlime.r, 0, Math.PI, true);
       context.closePath();
       context.lineWidth = 1;
-      context.fillStyle = 'red';
+      context.fillStyle = leftSlime.color;
       context.fill();
       context.strokeStyle = '#550000';
       context.stroke();
@@ -116,7 +110,7 @@ window.requestAnimFrame = (function(callback) {
          context.arc(rightSlime.x, rightSlime.y, rightSlime.r, 0, Math.PI, true);
          context.closePath();
          context.lineWidth = 1;
-         context.fillStyle = 'blue';
+         context.fillStyle = rightSlime.color;
          context.fill();
          context.strokeStyle = '#550000';
          context.stroke();
@@ -145,14 +139,12 @@ window.requestAnimFrame = (function(callback) {
    /*
    **************GAME LOGIC***************
    */	
-   function animate(lastTime, sceneVars, ball, leftSlime, rightSlime, runAnimation, canvas, context) {
-   if(runAnimation.value) {
-      // update
-      var time = (new Date()).getTime();
-      var timeDiff = time - lastTime;
-
-      
-      var gravA = -15;
+   function animate(lastTime, sceneVars, ball, leftSlime, rightSlime, canvas, context) {
+   
+   if(runAnimation) {
+      const time = new Date().getTime(),
+         timeDiff = time - lastTime;
+         gravA = -15;
       
       // Apply gravity to slimes and ball
       
@@ -331,11 +323,10 @@ window.requestAnimFrame = (function(callback) {
       drawBall(ball, context);
       drawleftSlime(leftSlime, context);
       drawRightSlime(rightSlime, context);
-      drawScore(score, context);
 
       // request new frame
       requestAnimFrame(function() {
-      animate(time, sceneVars, ball, leftSlime, rightSlime, runAnimation, canvas, context);
+         animate(time, sceneVars, ball, leftSlime, rightSlime, canvas, context);
       });
    }
    }
@@ -345,439 +336,374 @@ window.requestAnimFrame = (function(callback) {
    drawBall(ball, context);
    drawleftSlime(leftSlime, context);
    drawRightSlime(rightSlime, context);
-   drawScore(score, context);
-      
 
+   function input(direction){
+      
+      const player = isControllingLeft ? 1
+         : isControllingRight ? 2
+         : null;
+            
+      if (!player){
+         return;
+      }
+
+      const input = {
+         user: document.getElementById('login-user').value,
+         player: player,
+         direction: direction
+      }
+
+      console.log(`User input: [${input}].`);
+
+      socket.emit('input', input);
+   }
 
    // CONTROL HANDLING
-   document.onkeydown = function(evt) {
+   document.onkeydown = function(evt) {     
       evt = evt || window.event;
-      if (evt.keyCode == 87 && isControllingLeft) {
-         socket.emit('leftUp');
-      } else if (evt.keyCode == 87 && isControllingRight) {
-         socket.emit('rightUp');
-      } else if (evt.keyCode == 65 && isControllingLeft){
-         socket.emit('leftLeft');
-      } else if (evt.keyCode == 65 && isControllingRight){
-         socket.emit('rightLeft');
-      } else if (evt.keyCode == 68 && isControllingLeft){
-         socket.emit('leftRight');
-      } else if (evt.keyCode == 68 && isControllingRight){
-         socket.emit('rightRight');
+
+      let direction = null;
+      
+      switch (event.keyCode) {         
+         case 87:
+         case 38:
+            direction = 'Up';
+            break;
+         case 65:
+         case 37:
+            direction = 'Left';
+            break;
+         case 68:
+         case 39:
+            direction = 'Right';
+            break;
+         default:
+            break;
+      }      
+
+      if (direction){
+         input(direction);
       }
    };
 
-   document.onkeyup = function(evt) {
+   document.onkeyup = function(evt) { 
       evt = evt || window.event;
-      if (evt.keyCode == 65 && isControllingLeft){
-         socket.emit('leftLeftStop');
-      } else if (evt.keyCode == 65 && isControllingRight){
-         socket.emit('rightLeftStop');
-      } else if (evt.keyCode == 68 && isControllingLeft) {
-         socket.emit('leftRightStop');
-      } else if (evt.keyCode == 68 && isControllingRight) {
-         socket.emit('rightRightStop');
+
+      let direction = null;
+      
+      switch (event.keyCode) {         
+         case 87:
+         case 38:
+            irection = 'Up';
+            break;
+         case 65:
+         case 37:
+            direction = 'Left';
+            break;
+         case 68:
+         case 39:
+            direction = 'Right';
+            break;
+         default:
+            break;
+      }
+
+      if (direction){
+         input(`${direction}Stop`);
       }
    };
 
-         // Control Left button handler
-         $('#b_controlLeft').click(function(){
-            if (!isControllingRight) {
-            isControllingLeft = true;
-            socket.emit('checkLeft', $('#user').val());
-            }
-         });
-         
-         // Control Right button handler
-         $('#b_controlRight').click(function(){
-            if (!isControllingLeft) {
-            isControllingRight = true;
-            socket.emit('checkRight', $('#user').val());
-         }
-         });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   function login() {
       
+      const creds = {
+         user: document.getElementById('login-user').value,
+         pass: document.getElementById('login-pass').value,
+      }
+
+      console.log(`Attempting log in as user [${creds.user}].`);
       
+      socket.emit('auth-login', creds);
+      document.getElementById('app-login').addEventListener('click', login);
+   };
 
-         
-         // Login button handler
-         $('#b_login').click(function(){
-            socket.emit('checkLogin', $('#user').val() + ':' + $('#pwd').val());
-         //$('#user').val('');
-         //$('#pwd').val('');
-         return false;
-         });
-         
-         // Logout button handler
-         $('#b_logout').click(function(){
-            socket.emit('logout', $('#user').val());
-         document.getElementById('loginDiv').style.display = 'block';
-            document.getElementById('mainDiv').style.display = 'none';
-         $('#pwd').val('');
-         return false;
-         });
-         
-         // New User button handler
-         $('#b_newUser').click(function(){
+   function logout() {
+      
+      const user = document.getElementById('login-user').value;
+      
+      console.log(`Logging out ${user}.`);
+      
+      socket.emit('auth-logout', user);
             
-            var newUser = prompt("What be thy name?");
-            var newPass= prompt("What be thy secret word?");
-            if (newUser != null && newPass != null) {
-               //forbidden characters
-               if (newUser.indexOf(":") == -1 && newUser.indexOf("|") == -1 && newPass.indexOf(":") == -1 && newPass.indexOf("|") == -1){
-                  socket.emit('newUser', newUser + ':' + newPass);
-               } else {
-                  alert("You used one of the forbidden characters");
+      document.getElementById('app-login').style.display = 'block';
+      document.getElementById('app-main').style.display = 'none';
+   };
+
+   function requestGame(player) {
+
+      const user = document.getElementById('login-user').value;
+      
+      console.log(`Requesting player ${player} as ${user}.`);
+
+      socket.emit('match-request', {
+         user: user,
+         player: player
+      });
+   };   
+
+   document.getElementById('app-request-left').addEventListener('click', fn => requestGame(1));
+   document.getElementById('app-request-right').addEventListener('click', fn => requestGame(2));
+   document.getElementById('app-login').addEventListener('click', fn => login());
+   document.getElementById('app-logout').addEventListener('click', fn => logout());
+   document.getElementById('app-right').addEventListener('click', fn => input('Right'));
+   document.getElementById('app-up').addEventListener('click', fn => input('Up'));
+   document.getElementById('app-left').addEventListener('click', fn => input('Left'));
+   
+   socket.on('app-login', function(err){
+
+      if (err) {
+         $('#errorMessages').append($('<li>').text(err));
+         return;               
+      }
+
+      document.getElementById('app-login').style.display = 'none';
+      document.getElementById('app-main').style.display = 'block';
+
+      console.log('Logged in.')
+   });
+   
+   socket.on('match-state', function(info){
+      
+      console.log('GS', info);
+      
+      leftSlime.color = info.leftSlime.color || 'white';
+      rightSlime.color = info.rightSlime.color || 'white';
+      
+      const user = document.getElementById('login-user').value;
+
+      let leftOverlay = document.getElementById('overlay-left'),
+         rightOverlay = document.getElementById('overlay-right'),
+         leftRequest = document.getElementById('app-request-left'),
+         rightRequest = document.getElementById('app-request-right');
+                     
+      isControllingLeft = info.leftSlime.user == user;
+      isControllingRight = info.rightSlime.user == user;
+      
+      leftOverlay.style.borderColor = leftSlime.color;
+      leftOverlay.innerText = info.leftSlime.user || 'Player 1 Available';
+
+      leftRequest.style.borderColor = info.player1color;
+      leftRequest.style.display = 
+         info.leftSlime.user
+         || 
+         isControllingRight
+         ||
+         info.startTime
+
+         ? 'none' : 'block';
+
+      rightOverlay.style.borderColor = rightSlime.color;
+      rightOverlay.innerText = info.rightSlime.user || 'Player 2 Available';
+   
+      rightRequest.style.borderColor = rightSlime.color;
+      rightRequest.style.display = 
+         info.rightSlime.user
+         || 
+         isControllingLeft
+         ||
+         info.startTime
+
+         ? 'none' : 'block';           
+
+      if (info.startTime && !runAnimation){
+         runAnimation = true;
+         animate(new Date().getTime(), sceneVars, ball, leftSlime, rightSlime, canvas, context);
+      }
+   });
+
+   socket.on('movement', movement => {
+      switch (movement.move) {
+         case 'Up':
+            if (movement.player === 1){
+               if (leftSlime.y > canvas.height - sceneVars.fieldHeight - 3) {
+                  leftSlime.vertS = 400;
                }
             }
-         return false;
-         });
-         
-         // Profile back button handler
-         $('#b_profile2main').click(function(){
-         document.getElementById('profileDiv').style.display = 'none';
-            document.getElementById('mainDiv').style.display = 'block';
-         return false;
-         });
-         
-         //New Name button handler
-         $('#b_newName').click(function(){
-            
-            var newName = prompt("What be thy NEW name?");
-            var pass= prompt("What be thy secret word?");
-            if (newName != null && pass != null) {
-               if (newName != document.getElementById('user').value && pass == document.getElementById('pwd').value) {
-                  if (newName.indexOf(":") == -1 && newName.indexOf("|") == -1){
-                     var oldName = document.getElementById('user').value;
-                     document.getElementById('user').value = newName;
-                     document.getElementById('lblName').innerHTML = document.getElementById('user').value;
-                     socket.emit('newUser', newName + ':' + document.getElementById('pwd').value);
-                     socket.emit('deleteUser', oldName + ':' + document.getElementById('pwd').value);
-                     socket.emit('notification', oldName + ' - is now - ' + newName);
-                  } else {
-                     alert("You used one of the forbidden characters");
-                  }
-               } else {
-                  alert("Either you requested your current name or your Secret Word was incorrect");
+            if (movement.player === 2){
+               if (rightSlime.y > canvas.height - sceneVars.fieldHeight - 3) {
+                  rightSlime.vertS = 400;
                }
             }
-         return false;
-         });
-         
-         //New User button handler
-         $('#b_newPassword').click(function(){
-            
-            var oldPass = prompt("What be thy OLD Secret Word?");
-            var newPass= prompt("What be thy NEW secret word?");
-            if (oldPass != null && newPass != null) {
-               if (oldPass == document.getElementById('pwd').value && newPass != document.getElementById('pwd').value) {
-                  if (newPass.indexOf(":") == -1 && newPass.indexOf("|") == -1){
-                     document.getElementById('pwd').value = newPass;
-                     socket.emit('newUser', document.getElementById('user').value + ':' + newPass);
-                     socket.emit('deleteUser', document.getElementById('user').value + ':' + oldPass);
-                     alert("Secret Word changed");
-                  } else {
-                     alert("You used one of the forbidden characters");
-                  }
-               } else {
-                  alert("You did that wrong");
+            break;
+         case 'Left':
+            if (movement.player === 1){
+               leftSlime.horzS = -400;
+            }
+            if (movement.player === 2){
+               rightSlime.horzS = -400;
+            }
+            break;
+         case 'LeftStop':
+            if (movement.player === 1){
+               if (leftSlime.horzS < 0){
+                  leftSlime.horzS = 0;
                }
             }
-         return false;
-         });
-         
-         // Profile button handler
-         $('#b_profile').click(function(){
-            document.getElementById('lblName').innerHTML = document.getElementById('user').value;
-            document.getElementById('mainDiv').style.display = 'none';
-            document.getElementById('profileDiv').style.display = 'block';
-         return false;
-         });
-         
-         // Message send handler
-         $('#b_send').click(function(){
-         var check = $('#m').val();
-         if (document.getElementById('m').value != '')  {
-            socket.emit('chatMessage', $('#user').val() + ': ' + $('#m').val());
-            $('#m').val('');
-         } 	
-         return false;
-         });
-         
-            
-         //When receiving a login response
-         socket.on('checkLogin', function(msg){
-            
-            //if login is good
-            if (msg == "1") {
-               socket.emit('chatRefresh');
-            document.getElementById('loginDiv').style.display = 'none';
-            document.getElementById('mainDiv').style.display = 'block';
-            } else {
-               $('#errorMessages').append($('<li>').text(msg));
+            if (movement.player === 2){
+               if (rightSlime.horzS < 0) {
+                  rightSlime.horzS = 0;
+               }
             }
-         });
-         
-         //When receiving a  notification
-         socket.on('notification', function(msg){
-         $('#notifications').append($('<li>').text(msg));
-         });	
-
-         //When receiving a forced chat refresh
-         socket.on('forceChatRefresh', function(msg){
-         socket.emit('chatRefresh');
-         });	
-
-         //When receiving a clear chat request
-         socket.on('clearChat', function(msg){
-         $('#messages').empty();
-         });		   
-
-         //When receiving a chat message
-         socket.on('chatMessage', function(msg){
-         $('#messages').append($('<li>').text(msg));
-         });
-         
-         //When receiving a leftUp
-         socket.on('leftUp', function(){
-            if (leftSlime.y > canvas.height - sceneVars.fieldHeight - 3) {
-               leftSlime.vertS = 400;
+            break;
+         case 'Right':
+            if (movement.player === 1){
+               leftSlime.horzS = 400;
             }
-         });
-         
-         //When receiving a leftLeft
-         socket.on('leftLeft', function(){
-            leftSlime.horzS = -400;
-         });
-         
-         //When receiving a leftRight
-         socket.on('leftRight', function(){
-            leftSlime.horzS = 400;
-         });
-         
-         //When receiving a leftLeftStop
-         socket.on('leftLeftStop', function(){
-         if (leftSlime.horzS < 0) {
-            leftSlime.horzS = 0;
+            if (movement.player === 2){
+               rightSlime.horzS = 400;
+            }
+            break;
+         case 'RightStop':
+            if (movement.player === 1){
+               if (leftSlime.horzS > 0){
+                  leftSlime.horzS = 0;
+               }
+            }
+            if (movement.player === 2){
+               if (rightSlime.horzS > 0) {
+                  rightSlime.horzS = 0;
+               }
+            }
+            break;
+         default:
+            break;
+      }
+   });
+   
+   // When receiving a leftLocation
+   socket.on('leftLocation', function(msg){
+      runAnimation = false;
+      var str = msg;
+      var strBreak = str.indexOf('|');
+      var lx = str.substring(0, strBreak);
+      var ly = str.slice(strBreak + 1);
+      //leftSlime.x = lx;
+      //leftSlime.y = ly;
+      runAnimation = true;
+   });	
+
+   // When receiving a rightLocation
+   socket.on('rightLocation', function(msg){
+      runAnimation = false;
+      var str = msg;
+      var strBreak = str.indexOf('|');
+      var rx = str.substring(0, strBreak);
+      var ry = str.slice(strBreak + 1);
+      //rightSlime.x = rx;
+      //rightSlime.y = ry;
+      runAnimation = true;
+   });
+
+   // When receiving a collision
+   socket.on('collision', function(msg){
+      runAnimation = false;
+      var str = msg;
+      var strBreak = str.indexOf('|');
+      var force = str.substring(0, strBreak);
+      var angle = str.slice(strBreak + 1);
+      ball.vertS = force * Math.cos(angle);
+      ball.horzS = force * Math.sin(angle);
+      runAnimation = true;
+   });
+
+   // When receiving a leftGoal
+   socket.on('leftGoal', function(){
+      //stop animation and increment score 
+      runAnimation = false;
+      score.left = score.left + 1;
+      
+      //reset erthang
+      ball.x = ball.DEFAULTX;
+      ball.y = ball.DEFAULTY;
+      ball.vertS = 0;
+      ball.horzS = 0;
+      leftSlime.x = leftSlime.DEFAULTX;
+      leftSlime.y = leftSlime.DEFAULTY;
+      leftSlime.vertS = 0;
+      leftSlime.horzS = 0;
+      rightSlime.x = rightSlime.DEFAULTX;
+      rightSlime.y = rightSlime.DEFAULTY;
+      rightSlime.vertS = 0;
+      rightSlime.horzS = 0;
+      
+      if (score.left == 3){
+         if (isControllingLeft){
+            socket.emit('gameover', $('#user').val());
          }
-         });
+      } else {
+         runAnimation = true;
+      }
+   });
 
-         //When receiving a leftRightStop
-         socket.on('leftRightStop', function(){
-         if (leftSlime.horzS > 0) {
-            leftSlime.horzS = 0;
+   // When receiving a rightGoal
+   socket.on('rightGoal', function(){
+      //stop animation and increment score 
+      runAnimation = false;
+      score.right = score.right + 1;
+      
+      //reset erthang
+      ball.x = ball.DEFAULTX;
+      ball.y = ball.DEFAULTY;
+      ball.vertS = 0;
+      ball.horzS = 0;
+      leftSlime.x = leftSlime.DEFAULTX;
+      leftSlime.y = leftSlime.DEFAULTY;
+      leftSlime.vertS = 0;
+      leftSlime.horzS = 0;
+      rightSlime.x = rightSlime.DEFAULTX;
+      rightSlime.y = rightSlime.DEFAULTY;
+      rightSlime.vertS = 0;
+      rightSlime.horzS = 0;
+      
+      if (score.right == 3){
+         if (isControllingRight){
+            socket.emit('gameover', $('#user').val());
          }
-         });
-         
-         //When receiving a rightUp
-         socket.on('rightUp', function(){
-            if (rightSlime.y > canvas.height - sceneVars.fieldHeight - 3) {
-               rightSlime.vertS = 400;
-            }
-         });
-         
-         //When receiving a rightLeft
-         socket.on('rightLeft', function(){
-            rightSlime.horzS = -400;
-         });
-         
-         //When receiving a leftRight
-         socket.on('rightRight', function(){
-            rightSlime.horzS = 400;
-         });
-         
-         //When receiving a rightLeftStop
-         socket.on('rightLeftStop', function(){
-         if (rightSlime.horzS < 0) {
-            rightSlime.horzS = 0;
-         }
-         });
+      } else {
+         runAnimation = true;
+      }
+   });
 
-         //When receiving a rightRightStop
-         socket.on('rightRightStop', function(){
-         if (rightSlime.horzS > 0) {
-            rightSlime.horzS = 0;
-         }
-         });
-         
-         
-         //When receiving a startGame
-         socket.on('startGame', function(){
-            runAnimation.value = true;
-            var date = new Date();
-            var time = date.getTime();
-            animate(time, sceneVars, ball, leftSlime, rightSlime, runAnimation, canvas, context);
-         });
+   //When receiving a gameover
+   socket.on('gameover', function(msg){
+      score.winner = msg + " is the winner!";
+      
+      //reset game
+      isControllingLeft = false;
+      isControllingRight = false;
+      
+      document.getElementById('app-request-left').style.display = 'block';
+      document.getElementById('app-request-right').style.display = 'block';
+      
+      document.getElementById('overlay-left').innerText = 'Player 1 available';
+      document.getElementById('overlay-right').innerText = 'Player 2 available';
 
-         //When receiving a grantLeft
-         socket.on('grantLeft', function(msg){
-            document.getElementById('b_controlLeft').style.display = 'none';
-            document.getElementById('b_leftControlled').value = msg + ' is controlling red slime';
-            document.getElementById('b_leftControlled').style.display = 'block';
-         });
-         
-         //When receiving a grantRight
-         socket.on('grantRight', function(msg){
-            document.getElementById('b_controlRight').style.display = 'none';
-            document.getElementById('b_rightControlled').value = msg + ' is controlling blue slime';
-            document.getElementById('b_rightControlled').style.display = 'block';
-         });
-         
-         //When receiving a ballLocation
-         socket.on('ballLocation', function(msg){
-            runAnimation.value = false;
-            var str = msg;
-            var strBreak = str.indexOf('|');
-            var x = str.substring(0, strBreak);
-            var y = str.slice(strBreak + 1);
-            //ball.x = x;
-            //ball.y = y;
-            runAnimation.value = true;
-         });
-
-         // When receiving a leftLocation
-         socket.on('leftLocation', function(msg){
-            runAnimation.value = false;
-            var str = msg;
-            var strBreak = str.indexOf('|');
-            var lx = str.substring(0, strBreak);
-            var ly = str.slice(strBreak + 1);
-            //leftSlime.x = lx;
-            //leftSlime.y = ly;
-            runAnimation.value = true;
-         });	
-
-         // When receiving a rightLocation
-         socket.on('rightLocation', function(msg){
-            runAnimation.value = false;
-            var str = msg;
-            var strBreak = str.indexOf('|');
-            var rx = str.substring(0, strBreak);
-            var ry = str.slice(strBreak + 1);
-            //rightSlime.x = rx;
-            //rightSlime.y = ry;
-            runAnimation.value = true;
-         });
-
-         // When receiving a collision
-         socket.on('collision', function(msg){
-            runAnimation.value = false;
-            var str = msg;
-            var strBreak = str.indexOf('|');
-            var force = str.substring(0, strBreak);
-            var angle = str.slice(strBreak + 1);
-            ball.vertS = force * Math.cos(angle);
-            ball.horzS = force * Math.sin(angle);
-            runAnimation.value = true;
-         });
-
-         // When receiving a leftGoal
-         socket.on('leftGoal', function(){
-            //stop animation and increment score 
-            runAnimation.value = false;
-            score.left = score.left + 1;
-            
-            //reset erthang
-            ball.x = ball.DEFAULTX;
-            ball.y = ball.DEFAULTY;
-            ball.vertS = 0;
-            ball.horzS = 0;
-            leftSlime.x = leftSlime.DEFAULTX;
-            leftSlime.y = leftSlime.DEFAULTY;
-            leftSlime.vertS = 0;
-            leftSlime.horzS = 0;
-            rightSlime.x = rightSlime.DEFAULTX;
-            rightSlime.y = rightSlime.DEFAULTY;
-            rightSlime.vertS = 0;
-            rightSlime.horzS = 0;
-            
-            if (score.left == 3){
-               if (isControllingLeft){
-                  socket.emit('gameover', $('#user').val());
-               }
-            } else {
-               runAnimation.value = true;
-            }
-         });
-
-         // When receiving a rightGoal
-         socket.on('rightGoal', function(){
-            //stop animation and increment score 
-            runAnimation.value = false;
-            score.right = score.right + 1;
-            
-            //reset erthang
-            ball.x = ball.DEFAULTX;
-            ball.y = ball.DEFAULTY;
-            ball.vertS = 0;
-            ball.horzS = 0;
-            leftSlime.x = leftSlime.DEFAULTX;
-            leftSlime.y = leftSlime.DEFAULTY;
-            leftSlime.vertS = 0;
-            leftSlime.horzS = 0;
-            rightSlime.x = rightSlime.DEFAULTX;
-            rightSlime.y = rightSlime.DEFAULTY;
-            rightSlime.vertS = 0;
-            rightSlime.horzS = 0;
-            
-            if (score.right == 3){
-               if (isControllingRight){
-                  socket.emit('gameover', $('#user').val());
-               }
-            } else {
-               runAnimation.value = true;
-            }
-         });
-
-         //When receiving a gameover
-         socket.on('gameover', function(msg){
-            score.winner = msg + " is the winner!";
-            runAnimation.value = true;
-            //reset game
-            isControllingLeft = false;
-            isControllingRight = false;
-            document.getElementById('b_leftControlled').style.display = 'none';
-            document.getElementById('b_controlLeft').style.display = 'block';
-            document.getElementById('b_rightControlled').style.display = 'none';
-            document.getElementById('b_controlRight').style.display = 'block';
-            setTimeout(function(){
-               runAnimation.value = false;
-               //reset erthang
-               score.left = 0;
-               score.right = 0;
-               score.winner = '';
-               ball.x = ball.DEFAULTX;
-               ball.y = ball.DEFAULTY;
-               ball.vertS = 0;
-               ball.horzS = 0;
-               leftSlime.x = leftSlime.DEFAULTX;
-               leftSlime.y = leftSlime.DEFAULTY;
-               leftSlime.vertS = 0;
-               leftSlime.horzS = 0;
-               rightSlime.x = rightSlime.DEFAULTX;
-               rightSlime.y = rightSlime.DEFAULTY;
-               rightSlime.vertS = 0;
-               rightSlime.horzS = 0;
-            }, 50);
-            
-            
-
+      setTimeout(function(){
+         //reset erthang
+         score.left = 0;
+         score.right = 0;
+         score.winner = '';
+         ball.x = ball.DEFAULTX;
+         ball.y = ball.DEFAULTY;
+         ball.vertS = 0;
+         ball.horzS = 0;
+         leftSlime.x = leftSlime.DEFAULTX;
+         leftSlime.y = leftSlime.DEFAULTY;
+         leftSlime.vertS = 0;
+         leftSlime.horzS = 0;
+         rightSlime.x = rightSlime.DEFAULTX;
+         rightSlime.y = rightSlime.DEFAULTY;
+         rightSlime.vertS = 0;
+         rightSlime.horzS = 0;
+      }, 50);
    });
  }

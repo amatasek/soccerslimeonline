@@ -1,0 +1,19 @@
+#app-mask {
+	position: fixed;
+	left: 0px;
+	top: 0px;
+	width: 900px;
+	height: 100%;
+	z-index: 9999;
+	background: url('../img/preloader.gif') 50% 50% no-repeat white;
+	transition: all .5s linear;
+  	display: block;
+}
+
+#app-mask.visuallyhidden {
+  opacity: 0;
+}
+
+#app-mask.hidden {
+  display: none;
+}
